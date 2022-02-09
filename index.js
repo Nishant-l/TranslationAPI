@@ -4,7 +4,9 @@ const port = 8000;
 
 const app = express();
 
-app.use('/',require('./routes/api/v1/index'));
+app.use(express.urlencoded({extended:true}));
+
+app.use('/',require('./routes'));
 
 app.listen(port, (err) => {
     if(err){
