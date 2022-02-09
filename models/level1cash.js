@@ -7,7 +7,7 @@ const level1CashSchama = new mongoose.Schema({
     },
     storedAt: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'TranslationDataBase'
+        ref: 'TranslationDatabase'
     }
 })
 

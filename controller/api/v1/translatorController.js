@@ -14,25 +14,32 @@ module.exports.translate = async(req,res) => {  //controller to api translate
     
     const cashed = await l1cash.findOne({text:text});  // find if input text alredy exists in l1 cash
     if(cashed){ // if found in cash
-        const objId = cashed.storedAt;
-        const translatedObj = await translationDataBase.findById(objId); // find out the object_id in which all translated format is stored
-        let tempAns = await translatedObj.translations.get(dest);  // find if the target translation alredy exists in map
-        // console.log(tempAns);
-        if(!tempAns){ // if translation does not exist
-            translate = await getTranslate(text,src,dest); // call translate function which calls external api
-            translate = translate.data.translations[0].translatedText;
-            await translatedObj.translations.set(dest,translate); // save in the object which stores all translation
-            await translatedObj.save();
-            await l1cash.create({ // create l1 cash for the translated text
-                text:translate,
-                storedAt:translatedObj._id
-            });
-        }else{ // if translation exists
-            console.log('cashed used');
-            translate = tempAns; //set translate veriable to target
+
+        const dataStore = await cashed.populate('storedAt');
+        let translation = dataStore.storedAt.translations.get(dest);
+
+        if(translation){
+            return res.status(200).json({
+                original: text,
+                translated: translation
+            })
+        }else{
+            translation = await getTranslate(text,src,dest);
+            translation = translation.data.translations[0].translatedText;
+            console.log(dataStore.storedAt.id);
+            const returnedObject = await translationDataBase.findById(dataStore.storedAt.id);
+            await returnedObject.translations.set(dest,translation);
+            console.log(returnedObject.translations);
+            await returnedObject.save();
+            await l1cash.create({
+                            text:translation,
+                            storedAt:dataStore.storedAt._id
+                        });
+            return res.status(200).json({
+                original: text,
+                translated: translation
+            })
         }
-        console.log(text, src, dest);
-        return res.status(200).json({original:text,translated: translate}); // return json response
     }else{ // if cash does not exist
         if( src != 'en'){ // check if src is english text and it is not english
             let englishTranslation = await getTranslate(text,src, 'en'); // call external api to get english translation
