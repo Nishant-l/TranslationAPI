@@ -1,0 +1,18 @@
+{
+  "name": "translator_api",
+  "version": "1.0.0",
+  "description": "API to translate text between languages",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Nishant",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.25.0",
+    "dotenv": "^16.0.0",
+    "express": "^4.17.2",
+    "mongoose": "^6.2.1",
+    "qs": "^6.10.3"
+  }
+}
